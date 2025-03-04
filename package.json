@@ -8,7 +8,11 @@
       "build": "tsc"
     },
     "dependencies": {
-      "@vercel/ai": "latest"
+      "ai": "latest",
+      "@ai-sdk/openai": "latest",
+      "@ai-sdk/anthropic": "latest",
+      "@ai-sdk/google": "latest",
+      "dotenv": "latest"
     },
     "devDependencies": {
       "typescript": "latest",
