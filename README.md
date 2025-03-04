@@ -15,8 +15,13 @@ npm install
 ```
 
 ## Usage
+
+Usage:
+CLI => npm run start <model> <question>
+<model> => openai, anthropic, or google
+
 ```sh
-npm run start "What do experts think about AI regulation?"
+npm run start openai "What do experts think about AI regulation?"
 ```
 
 ## Environment Variables
