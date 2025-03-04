@@ -4,18 +4,19 @@
     "description": "Open-source AI panel research tool for investigating opinions and insights.",
     "main": "src/index.ts",
     "scripts": {
-      "start": "node dist/index.js",
-      "build": "tsc"
+        "start": "node dist/index.js",
+        "build": "tsc"
     },
     "dependencies": {
-      "ai": "latest",
-      "@ai-sdk/openai": "latest",
-      "@ai-sdk/anthropic": "latest",
-      "@ai-sdk/google": "latest",
-      "dotenv": "latest"
+        "@ai-sdk/anthropic": "^1.1.13",
+        "@ai-sdk/google": "^1.1.18",
+        "@ai-sdk/openai": "^1.2.0",
+        "ai": "^4.1.50",
+        "dotenv": "^16.4.7",
+        "undici": "^6.21.1"
     },
     "devDependencies": {
-      "typescript": "latest",
-      "ts-node": "latest"
+        "ts-node": "latest",
+        "typescript": "latest"
     }
-  }
+}
