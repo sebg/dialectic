@@ -1,0 +1,17 @@
+{
+    "name": "dialectic",
+    "version": "0.1.0",
+    "description": "Open-source AI panel research tool for investigating opinions and insights.",
+    "main": "src/index.ts",
+    "scripts": {
+      "start": "node dist/index.js",
+      "build": "tsc"
+    },
+    "dependencies": {
+      "@vercel/ai": "latest"
+    },
+    "devDependencies": {
+      "typescript": "latest",
+      "ts-node": "latest"
+    }
+  }
