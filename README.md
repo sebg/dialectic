@@ -16,9 +16,11 @@ npm install
 
 ## Usage
 
-Usage:
-CLI => npm run start <model> <question>
-<model> => openai, anthropic, or google
+**Usage:**
+  
+CLI => `npm run start <model> <question>`
+
+`<model>` => `openai`, `anthropic`, or `google`
 
 ```sh
 npm run start openai "What do experts think about AI regulation?"
