@@ -1,5 +1,6 @@
 {
     "name": "dialectic",
+    "type": "module",
     "version": "0.1.0",
     "description": "Open-source AI panel research tool for investigating opinions and insights.",
     "main": "src/index.ts",
