@@ -1,4 +1,5 @@
 import { askAI } from "./ai.js";
+import { log } from './logger.js';
 
 const args = process.argv.slice(2);
 
@@ -11,8 +12,10 @@ if (args.length < 2) {
 const modelProvider = args[0]; // "openai", "anthropic", or "google"
 const question = args.slice(1).join(" "); // The question to ask
 
-askAI(question, modelProvider).then(response => {
-  console.log("\nAI Response:\n", response);
-}).catch(error => {
-  console.error("Error:", error);
-});
+askAI(question, modelProvider)
+  .then(response => {
+    log(`AI Response:\n ${response}`);
+  })
+  .catch(error => {
+    log(`AI Error: ${error}`);
+  });

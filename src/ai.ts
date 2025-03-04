@@ -6,7 +6,11 @@ import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { google } from '@ai-sdk/google';
 
+import { log } from './logger.js';
+
 export async function askAI(question: string, modelProvider: string) {
+  log(`Querying ${modelProvider} with: "${question}"`);
+
   let model;
 
   switch (modelProvider) {
@@ -29,5 +33,6 @@ export async function askAI(question: string, modelProvider: string) {
     prompt: question
   });
 
+  log("Response received.");
   return text;
 }
