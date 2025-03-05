@@ -23,37 +23,47 @@ function loadPersonas(): Persona[] {
   return JSON.parse(fileContent) as Persona[];
 }
 
-// print the personas
-console.log("[Dialectic] Loaded personas:", loadPersonas());
-
-// Break for now
-process.exit(0);
-
-export async function askAI(question: string, modelProvider: string) {
-  log(`Querying ${modelProvider} with: "${question}"`);
-
-  let model;
-
+// Load LLM Model from AI SDK
+function getModel(modelProvider: string) {
   switch (modelProvider) {
     case "openai":
-      model = openai("gpt-4o");
-      break;
+      return openai("gpt-4o");
     case "anthropic":
-      model = anthropic("claude-3");
-      break;
+      return anthropic("claude-3");
     case "google":
-      model = google("gemini-pro");
-      break;
+      return google("gemini-pro");
     default:
       throw new Error("Invalid model provider");
   }
+}
+
+// Ask AI
+async function askAI(question: string, model: any, systemPrompt: string) {
+  log(`Querying model with question: "${question}"`);
 
   const { text } = await generateText({
     model,
-    system: "You are a research assistant providing diverse insights.",
+    system: systemPrompt,
     prompt: question,
   });
 
   log("Response received.");
   return text;
+}
+
+// Ask all personas
+export async function askAllPersonas(
+  modelProvider: string,
+  userQuestion: string,
+): Promise<void> {
+  const personas = loadPersonas();
+  const model = getModel(modelProvider);
+
+  for (const persona of personas) {
+    console.log(`[Dialectic] Querying Persona: ${persona.name}...`);
+
+    const response = await askAI(userQuestion, model, persona.prompt);
+
+    console.log(`[Dialectic] Response (${persona.name}):\n${response}\n`);
+  }
 }

@@ -1,4 +1,4 @@
-import { askAI } from "./ai.js";
+import { askAllPersonas } from "./ai.js";
 import { log } from "./logger.js";
 
 const args = process.argv.slice(2);
@@ -14,10 +14,10 @@ if (args.length < 2) {
 const modelProvider = args[0]; // "openai", "anthropic", or "google"
 const question = args.slice(1).join(" "); // The question to ask
 
-askAI(question, modelProvider)
-  .then((response) => {
-    log(`AI Response:\n ${response}`);
+askAllPersonas(modelProvider, question)
+  .then(() => {
+    log("Successfully queried all personas.");
   })
-  .catch((error) => {
-    log(`AI Error: ${error}`);
+  .catch((err) => {
+    log(`Error:: ${err}.`);
   });
