@@ -56,11 +56,8 @@ export async function askAllPersonas(
   modelProvider: string,
   userQuestion: string,
 ): Promise<Record<string, string>> {
-  // returns a dictionary of responses
   const personas = loadPersonas();
   const model = getModel(modelProvider);
-
-  // Create a dictionary to store responses
   const responses: Record<string, string> = {};
 
   for (const persona of personas) {
@@ -68,12 +65,10 @@ export async function askAllPersonas(
 
     const response = await askAI(userQuestion, model, persona.prompt);
 
-    console.log(`[Dialectic] Response (${persona.name}):\n${response}\n`);
-
-    // Save response in the dictionary
     responses[persona.name] = response;
+
+    console.log(`[Dialectic] Response (${persona.name}):\n${response}\n`);
   }
 
-  // Return all responses to be used later
   return responses;
 }

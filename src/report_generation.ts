@@ -1,23 +1,26 @@
-import * as fs from "fs";
+import { writeFileSync } from "fs";
 import * as path from "path";
-import { log } from "./logger.js";
 
 export function generateMarkdownReport(
   question: string,
   responses: Record<string, string>,
-) {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const filename = `./reports/report-${timestamp}.md`;
+  summary: string,
+): string {
+  const timestamp = new Date().toISOString();
+  const filename = `report-${timestamp}.md`;
+  const reportPath = path.join(process.cwd(), "reports", filename);
 
-  let markdown = `# Dialectic Report\n\n`;
-  markdown += `**Question:** ${question}\n\n`;
-  markdown += `**Generated on:** ${new Date().toLocaleString()}\n\n`;
-  markdown += `---\n\n`;
+  let content = `# Dialectic Report\n\n`;
+  content += `**Question:** ${question}\n\n`;
+  content += `**Generated on:** ${new Date().toLocaleString()}\n\n---\n\n`;
 
   for (const [persona, response] of Object.entries(responses)) {
-    markdown += `## Response from ${persona}\n\n${responses[persona]}\n\n---\n\n`;
+    content += `## Response from ${persona}\n\n${response}\n\n---\n\n`;
   }
 
-  fs.writeFileSync(filename, markdown);
-  log(`Report generated at ${filename}`);
+  content += `## Summarized Insights\n\n${summary}\n\n`;
+
+  writeFileSync(reportPath, content);
+
+  return reportPath;
 }
