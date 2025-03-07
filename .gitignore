@@ -2,3 +2,6 @@ node_modules/
 dist/
 .envsrc/*.js
 .env
+
+# Ignore generated reports
+/reports/*.md
