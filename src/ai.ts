@@ -55,19 +55,29 @@ async function askAI(question: string, model: any, systemPrompt: string) {
 export async function askAllPersonas(
   modelProvider: string,
   userQuestion: string,
-): Promise<Record<string, string>> {
+  verbose: boolean = false,
+  customSystemPrompt?: string,
+): Promise<{ name: string; response: string }[]> {
   const personas = loadPersonas();
   const model = getModel(modelProvider);
-  const responses: Record<string, string> = {};
+
+  // Adjust the prompt based on verbosity
+  const verbosityPrompt = verbose
+    ? "Provide a detailed and thorough response."
+    : "Keep your response concise, no more than five sentences.";
+
+  const responses = [];
 
   for (const persona of personas) {
-    console.log(`[Dialectic] Querying Persona: ${persona.name}...`);
+    const systemPrompt = customSystemPrompt
+      ? customSystemPrompt
+      : `${persona.prompt} ${verbosityPrompt}`;
 
-    const response = await askAI(userQuestion, model, persona.prompt);
+    log(`[Dialectic] Querying Persona: ${persona.name}...`);
+    const response = await askAI(userQuestion, model, systemPrompt);
 
-    responses[persona.name] = response;
-
-    console.log(`[Dialectic] Response (${persona.name}):\n${response}\n`);
+    log(`[Dialectic] Response (${persona.name}) received.`);
+    responses.push({ name: persona.name, response });
   }
 
   return responses;

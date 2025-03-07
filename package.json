@@ -14,9 +14,11 @@
     "@ai-sdk/anthropic": "^1.1.13",
     "@ai-sdk/google": "^1.1.18",
     "@ai-sdk/openai": "^1.2.0",
+    "@types/yargs": "^17.0.33",
     "ai": "^4.1.50",
     "dotenv": "^16.4.7",
-    "undici": "^6.21.1"
+    "undici": "^6.21.1",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "eslint": "^9.21.0",
