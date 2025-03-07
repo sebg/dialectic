@@ -1,33 +1,34 @@
-import { writeFileSync } from "fs";
+import { writeFileSync, existsSync, mkdirSync } from "fs";
 import * as path from "path";
-
-type PersonaResponse = {
-  name: string;
-  response: string;
-};
+import { ConversationTurn } from "./ai.js";
 
 export function generateMarkdownReport(
   question: string,
-  responses: PersonaResponse[],
+  conversation: ConversationTurn[],
   summary: string,
-) {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+): string {
+  const timestamp = new Date().toISOString().replace(/:/g, "-");
   const fileName = `report-${timestamp}.md`;
-  const filePath = path.join(process.cwd(), "reports", fileName);
 
-  const formattedResponses = responses
-    .map(
-      ({ name, response }) => `
-## Response from ${name}
+  const reportDir = path.join(process.cwd(), "reports");
 
-${response}
+  if (!existsSync(reportDir)) {
+    mkdirSync(reportDir, { recursive: true });
+  }
 
----`,
-    )
+  const reportPath = path.join(reportDir, fileName);
+
+  const conversationMarkdown = conversation
+    .map(({ speaker, message, respondingTo }) => {
+      const responseLine = respondingTo
+        ? `**${speaker}** *(responding to ${respondingTo})*:\n\n${message}`
+        : `**${speaker}**:\n\n${message}`;
+      return `${responseLine}\n\n---\n`;
+    })
     .join("\n");
 
   const content = `
-# Dialectic Report
+# Dialectic Report (Conversational)
 
 **Question:** ${question}
 
@@ -35,13 +36,13 @@ ${response}
 
 ---
 
-${formattedResponses}
+${conversationMarkdown}
 
 ## Summarized Insights
 
 ${summary}
 `;
 
-  writeFileSync(filePath, content.trim());
-  return filePath;
+  writeFileSync(reportPath, content);
+  return reportPath;
 }

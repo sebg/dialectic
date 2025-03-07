@@ -1,30 +1,38 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { readFileSync } from "fs";
-import * as path from "path";
-
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
-
+import { readFileSync } from "fs";
+import * as path from "path";
+import { shuffle } from "lodash-es";
 import { log } from "./logger.js";
 
-interface Persona {
+export interface Persona {
   name: string;
   prompt: string;
 }
 
-// Load personas from JSON file
-function loadPersonas(): Persona[] {
+export interface PersonaResponse {
+  speaker: string; // previously 'name'
+  message: string; // previously 'response'
+}
+
+export interface ConversationTurn {
+  speaker: string;
+  message: string;
+  respondingTo?: string; // Optional since first message won't have this
+}
+
+export function loadPersonas(): Persona[] {
   const filePath = path.join(process.cwd(), "src", "personas.json");
   const fileContent = readFileSync(filePath, "utf-8");
   return JSON.parse(fileContent) as Persona[];
 }
 
-// Load LLM Model from AI SDK
-function getModel(modelProvider: string) {
+export function getModel(modelProvider: string) {
   switch (modelProvider) {
     case "openai":
       return openai("gpt-4o");
@@ -37,9 +45,13 @@ function getModel(modelProvider: string) {
   }
 }
 
-// Ask AI
-async function askAI(question: string, model: any, systemPrompt: string) {
-  log(`Querying model with question: "${question}"`);
+export async function askAI(
+  question: string,
+  model: any,
+  systemPrompt: string,
+  verbose = false,
+): Promise<string> {
+  if (verbose) log(`Querying model with question: "${question}"`);
 
   const { text } = await generateText({
     model,
@@ -47,38 +59,37 @@ async function askAI(question: string, model: any, systemPrompt: string) {
     prompt: question,
   });
 
-  log("Response received.");
+  if (verbose) log("Response received.");
   return text;
 }
 
-// Ask all personas
-export async function askAllPersonas(
-  modelProvider: string,
-  userQuestion: string,
-  verbose: boolean = false,
-  customSystemPrompt?: string,
-): Promise<{ name: string; response: string }[]> {
-  const personas = loadPersonas();
-  const model = getModel(modelProvider);
+// UPDATED FUNCTION WITH CONVERSATION LOGIC
+export async function askPersonasConversation(
+  personas: Persona[],
+  model: any,
+  question: string,
+  verbose: boolean,
+): Promise<ConversationTurn[]> {
+  const conversation: ConversationTurn[] = [];
 
-  // Adjust the prompt based on verbosity
-  const verbosityPrompt = verbose
-    ? "Provide a detailed and thorough response."
-    : "Keep your response concise, no more than five sentences.";
-
-  const responses = [];
+  let previousResponse = question;
 
   for (const persona of personas) {
-    const systemPrompt = customSystemPrompt
-      ? customSystemPrompt
-      : `${persona.prompt} ${verbosityPrompt}`;
+    const response = await askAI(
+      previousResponse,
+      model,
+      persona.prompt,
+      verbose,
+    );
 
-    log(`[Dialectic] Querying Persona: ${persona.name}...`);
-    const response = await askAI(userQuestion, model, systemPrompt);
+    conversation.push({
+      speaker: persona.name,
+      message: response,
+      respondingTo: previousResponse,
+    });
 
-    log(`[Dialectic] Response (${persona.name}) received.`);
-    responses.push({ name: persona.name, response });
+    previousResponse = `${persona.name} said: "${response}"\n\n${question}`;
   }
 
-  return responses;
+  return conversation;
 }

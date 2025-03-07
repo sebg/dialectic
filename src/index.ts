@@ -1,10 +1,11 @@
-import { readFileSync } from "fs";
-import { askAllPersonas } from "./ai.js";
+import { loadPersonas, getModel, askPersonasConversation } from "./ai.js";
 import { generateMarkdownReport } from "./report_generation.js";
 import { generateSummary } from "./summarizer.js";
 import { log } from "./logger.js";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { shuffle } from "lodash-es";
+import type { ConversationTurn } from "./ai.js";
 
 const argv = yargs(hideBin(process.argv))
   .option("model", {
@@ -33,38 +34,29 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-type PersonaResponse = {
-  name: string;
-  response: string;
-};
-
 async function runDialectic() {
-  const { model, question, context: contextPath, verbose, summarizer } = argv;
+  const personas = loadPersonas();
+  const model = getModel(argv.model);
 
-  let context = contextPath;
-  if (context) {
-    context = readFileSync(context, "utf-8");
-  }
+  const order = argv.random ? shuffle(personas.map((p) => p.name)) : undefined;
 
-  const fullQuestion = context ? `${context}\n\n${question}` : question;
-
-  log("Asking all personas for their thoughts");
-  const responses: PersonaResponse[] = await askAllPersonas(
+  log("Running Persona Conversation");
+  const responses: ConversationTurn[] = await askPersonasConversation(
+    personas,
     model,
-    fullQuestion,
-    verbose,
+    argv.question,
+    argv.verbose,
   );
-  log("Received responses from all personas");
+
+  log("Conversation completed");
 
   let summary = "";
-  if (summarizer) {
-    log("Generating summary of responses");
-    summary = await generateSummary(fullQuestion, responses);
-    log("Generated summary of responses");
+  if (argv.summarizer) {
+    summary = await generateSummary(argv.question, responses);
+    log("Summary generated");
   }
 
-  log("Generating markdown report");
-  const reportPath = generateMarkdownReport(fullQuestion, responses, summary);
+  const reportPath = generateMarkdownReport(argv.question, responses, summary);
   log(`Report generated at ${reportPath}`);
 }
 

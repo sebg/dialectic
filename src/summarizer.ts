@@ -1,17 +1,13 @@
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
-
-type PersonaResponse = {
-  name: string;
-  response: string;
-};
+import type { ConversationTurn } from "./ai.js";
 
 export async function generateSummary(
   question: string,
-  responses: PersonaResponse[],
+  conversation: ConversationTurn[],
 ): Promise<string> {
-  const formattedResponses = responses
-    .map((persona) => `${persona.name}: ${persona.response}`)
+  const formattedResponses = conversation
+    .map(({ speaker, message }) => `${speaker} said: ${message}`)
     .join("\n\n");
 
   const summarizerPrompt = `
