@@ -60,7 +60,7 @@ async function runDialectic() {
 
   let summary = "";
   if (argv.summarizer) {
-    summary = await generateSummary(argv.question, responses);
+    summary = await generateSummary(argv.question, responses, argv.verbose);
     log("Summary generated");
   }
 

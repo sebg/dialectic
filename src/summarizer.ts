@@ -1,10 +1,11 @@
-import { generateText } from "ai";
+import { askAI } from "./ai.js";
 import { openai } from "@ai-sdk/openai";
 import type { ConversationTurn } from "./conversation.js";
 
 export async function generateSummary(
   question: string,
   conversation: ConversationTurn[],
+  verbose: boolean = false,
 ): Promise<string> {
   const formattedResponses = conversation
     .map(({ speaker, message }) => `${speaker} said: ${message}`)
@@ -16,11 +17,8 @@ Question: ${question}
 Responses: ${formattedResponses}
 `;
 
-  const { text: summary } = await generateText({
-    model: openai("gpt-4o"), // TODO: Make this configurable , defaulting to OpenAI GPT-4o for summarization for now
-    system: "You are a concise summarizer of expert opinions.",
-    prompt: summarizerPrompt,
-  });
+  const systemPrompt = "You are a concise summarizer of expert opinions.";
+  const model = openai("gpt-4o"); // TODO: Make this configurable, defaulting to OpenAI GPT-4o for summarization for now
 
-  return summary;
+  return await askAI(summarizerPrompt, model, systemPrompt, verbose);
 }
