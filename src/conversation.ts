@@ -1,10 +1,4 @@
-import { askAI } from "./ai.js";
-import { Persona } from "./ai.js";
-
-export interface PersonaResponse {
-  name: string;
-  response: string;
-}
+import { askAI, Persona, PersonaResponse } from "./ai.js";
 
 export async function runPersonaConversation(
   personas: Persona[],
@@ -22,14 +16,14 @@ export async function runPersonaConversation(
     }
 
     const context = responses
-      .map((res) => `${res.name} said: "${res.response}"`)
+      .map((res) => `${res.speaker} said: "${res.message}"`)
       .join("\n\n");
 
     const fullPrompt = context ? `${context}\n\n${question}` : question;
 
     const response = await askAI(fullPrompt, model, persona.prompt);
 
-    responses.push({ name: persona.name, response });
+    responses.push({ speaker: persona.name, message: response });
   }
 
   return responses;
