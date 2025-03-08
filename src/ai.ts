@@ -7,7 +7,11 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { log } from "./logger.js";
 
-export function getModel(modelProvider: string) {
+// Use a generic type for models since we don't have access to the specific model types
+export type SupportedModel = any; // This will be the return type from openai(), anthropic(), or google()
+export type ModelProvider = "openai" | "anthropic" | "google";
+
+export function getModel(modelProvider: ModelProvider): SupportedModel {
   switch (modelProvider) {
     case "openai":
       return openai("gpt-4o");
@@ -16,13 +20,13 @@ export function getModel(modelProvider: string) {
     case "google":
       return google("gemini-pro");
     default:
-      throw new Error("Invalid model provider");
+      throw new Error(`Invalid model provider: ${modelProvider}`);
   }
 }
 
 export async function askAI(
   question: string,
-  model: any,
+  model: SupportedModel,
   systemPrompt: string,
   verbose = false,
 ): Promise<string> {

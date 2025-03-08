@@ -1,11 +1,11 @@
-import { askAI, getModel } from "./ai.js";
+import { askAI, getModel, ModelProvider, SupportedModel } from "./ai.js";
 import type { ConversationTurn } from "./conversation.js";
 
 export async function generateSummary(
   question: string,
   conversation: ConversationTurn[],
   verbose: boolean = false,
-  modelProvider: string,
+  modelProvider: ModelProvider,
 ): Promise<string> {
   const formattedResponses = conversation
     .map(({ speaker, message }) => `${speaker} said: ${message}`)

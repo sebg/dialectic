@@ -1,4 +1,4 @@
-import { getModel } from "./ai.js";
+import { getModel, ModelProvider } from "./ai.js";
 import { loadPersonas, runPersonaConversation } from "./conversation.js";
 import { generateMarkdownReport } from "./report_generation.js";
 import { generateSummary } from "./summarizer.js";
@@ -12,7 +12,9 @@ const argv = yargs(hideBin(process.argv))
   .option("model", {
     alias: "m",
     type: "string",
+    choices: ["openai", "anthropic", "google"] as ModelProvider[],
     demandOption: true,
+    description: "The AI model provider to use (openai, anthropic, or google)",
   })
   .option("question", {
     alias: "q",
@@ -42,35 +44,45 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 async function runDialectic() {
-  const personas = loadPersonas();
-  const model = getModel(argv.model);
+  try {
+    const personas = loadPersonas();
+    const model = getModel(argv.model as ModelProvider);
 
-  const order = argv.random ? shuffle(personas.map((p) => p.name)) : undefined;
+    const order = argv.random
+      ? shuffle(personas.map((p) => p.name))
+      : undefined;
 
-  log("Running Persona Conversation");
-  const responses: ConversationTurn[] = await runPersonaConversation(
-    personas,
-    argv.question,
-    model,
-    order,
-    argv.verbose,
-  );
+    log("Running Persona Conversation");
+    const responses: ConversationTurn[] = await runPersonaConversation(
+      personas,
+      argv.question,
+      model,
+      order,
+      argv.verbose,
+    );
 
-  log("Conversation completed");
+    log("Conversation completed");
 
-  let summary = "";
-  if (argv.summarizer) {
-    summary = await generateSummary(
+    let summary = "";
+    if (argv.summarizer) {
+      summary = await generateSummary(
+        argv.question,
+        responses,
+        argv.verbose,
+        argv.model as ModelProvider,
+      );
+      log("Summary generated");
+    }
+
+    const reportPath = generateMarkdownReport(
       argv.question,
       responses,
-      argv.verbose,
-      argv.model,
+      summary,
     );
-    log("Summary generated");
+    log(`Report generated at ${reportPath}`);
+  } catch (error) {
+    log(`Error: ${error}`);
   }
-
-  const reportPath = generateMarkdownReport(argv.question, responses, summary);
-  log(`Report generated at ${reportPath}`);
 }
 
 runDialectic().catch((err) => log(`Error: ${err}`));

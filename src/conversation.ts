@@ -1,4 +1,4 @@
-import { askAI } from "./ai.js";
+import { askAI, SupportedModel } from "./ai.js";
 import { log } from "./logger.js";
 import { readFileSync } from "fs";
 import * as path from "path";
@@ -15,15 +15,45 @@ export interface ConversationTurn {
 }
 
 export function loadPersonas(): Persona[] {
-  const filePath = path.join(process.cwd(), "src", "personas.json");
-  const fileContent = readFileSync(filePath, "utf-8");
-  return JSON.parse(fileContent) as Persona[];
+  try {
+    // Try to find personas.json in multiple possible locations
+    const possiblePaths = [
+      path.join(process.cwd(), "src", "personas.json"),
+      path.join(process.cwd(), "personas.json"),
+      path.join(__dirname, "personas.json"),
+    ];
+
+    let fileContent: string | null = null;
+    let foundPath: string | null = null;
+
+    for (const filePath of possiblePaths) {
+      try {
+        fileContent = readFileSync(filePath, "utf-8");
+        foundPath = filePath;
+        break;
+      } catch (err) {
+        // Continue to next path
+      }
+    }
+
+    if (!fileContent || !foundPath) {
+      throw new Error(
+        "Could not locate personas.json in any of the expected locations",
+      );
+    }
+
+    log(`Loaded personas from ${foundPath}`);
+    return JSON.parse(fileContent) as Persona[];
+  } catch (error) {
+    log(`Error loading personas: ${error}`);
+    throw error;
+  }
 }
 
 export async function runPersonaConversation(
   personas: Persona[],
   question: string,
-  model: any,
+  model: SupportedModel,
   order?: string[],
   verbose: boolean = false,
 ): Promise<ConversationTurn[]> {
