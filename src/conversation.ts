@@ -1,4 +1,18 @@
-import { askAI, Persona, PersonaResponse } from "./ai.js";
+import { askAI } from "./ai.js";
+
+export interface Persona {
+  name: string;
+  prompt: string;
+}
+
+export interface PersonaResponse {
+  speaker: string;
+  message: string;
+}
+
+export interface ConversationTurn extends PersonaResponse {
+  respondingTo?: string; // Optional since first message won't have this
+}
 
 export async function runPersonaConversation(
   personas: Persona[],
