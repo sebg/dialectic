@@ -1,11 +1,11 @@
-import { askAI } from "./ai.js";
-import { openai } from "@ai-sdk/openai";
+import { askAI, getModel } from "./ai.js";
 import type { ConversationTurn } from "./conversation.js";
 
 export async function generateSummary(
   question: string,
   conversation: ConversationTurn[],
   verbose: boolean = false,
+  modelProvider: string = "openai",
 ): Promise<string> {
   const formattedResponses = conversation
     .map(({ speaker, message }) => `${speaker} said: ${message}`)
@@ -18,7 +18,7 @@ Responses: ${formattedResponses}
 `;
 
   const systemPrompt = "You are a concise summarizer of expert opinions.";
-  const model = openai("gpt-4o"); // TODO: Make this configurable, defaulting to OpenAI GPT-4o for summarization for now
+  const model = getModel(modelProvider); // Using the model provider passed as parameter
 
   return await askAI(summarizerPrompt, model, systemPrompt, verbose);
 }
