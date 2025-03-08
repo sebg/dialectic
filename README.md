@@ -24,13 +24,14 @@ npm install
 
 Dialectic offers flexible command-line arguments:
 
-| Argument       | Short | Required | Default | Description                                      |
-| -------------- | ----- | -------- | ------- | ------------------------------------------------ |
-| `--model`      | `-m`  | Yes      | -       | Model provider (`openai`, `anthropic`, `google`) |
-| `--question`   | `-q`  | Yes      | -       | The question to ask the AI personas              |
-| `--summarizer` | `-s`  | No       | `true`  | Generate summarized insights from responses      |
-| `--verbose`    | `-v`  | No       | `false` | Detailed logging of AI queries and responses     |
-| `--context`    | `-c`  | No       | -       | Path to a text file providing additional context |
+| Argument       | Short | Required | Default | Description                                         |
+| -------------- | ----- | -------- | ------- | --------------------------------------------------- |
+| `--model`      | `-m`  | Yes      | -       | Model provider (`openai`, `anthropic`, `google`)    |
+| `--question`   | `-q`  | Yes      | -       | The question to ask the AI personas                 |
+| `--summarizer` | `-s`  | No       | `true`  | Generate summarized insights from responses         |
+| `--verbose`    | `-v`  | No       | `false` | Detailed logging of AI queries and responses        |
+| `--context`    | `-c`  | No       | -       | Path to a text file providing additional context    |
+| `--random`     | `-r`  | No       | `false` | Randomize the order of personas in the conversation |
 
 ### Example
 
