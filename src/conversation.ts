@@ -8,12 +8,9 @@ export interface Persona {
   prompt: string;
 }
 
-export interface PersonaResponse {
+export interface ConversationTurn {
   speaker: string;
   message: string;
-}
-
-export interface ConversationTurn extends PersonaResponse {
   respondingTo?: string; // Optional since first message won't have this
 }
 
