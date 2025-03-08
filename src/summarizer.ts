@@ -5,7 +5,7 @@ export async function generateSummary(
   question: string,
   conversation: ConversationTurn[],
   verbose: boolean = false,
-  modelProvider: string = "openai",
+  modelProvider: string,
 ): Promise<string> {
   const formattedResponses = conversation
     .map(({ speaker, message }) => `${speaker} said: ${message}`)
