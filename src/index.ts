@@ -1,11 +1,12 @@
-import { loadPersonas, getModel, askPersonasConversation } from "./ai.js";
+import { getModel } from "./ai.js";
+import { loadPersonas, runPersonaConversation } from "./conversation.js";
 import { generateMarkdownReport } from "./report_generation.js";
 import { generateSummary } from "./summarizer.js";
 import { log } from "./logger.js";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { shuffle } from "lodash-es";
-import type { ConversationTurn } from "./ai.js";
+import type { ConversationTurn } from "./conversation.js";
 
 const argv = yargs(hideBin(process.argv))
   .option("model", {
@@ -32,6 +33,12 @@ const argv = yargs(hideBin(process.argv))
     type: "boolean",
     default: true,
   })
+  .option("random", {
+    alias: "r",
+    type: "boolean",
+    default: false,
+    description: "Randomize the order of personas in the conversation",
+  })
   .parseSync();
 
 async function runDialectic() {
@@ -41,10 +48,11 @@ async function runDialectic() {
   const order = argv.random ? shuffle(personas.map((p) => p.name)) : undefined;
 
   log("Running Persona Conversation");
-  const responses: ConversationTurn[] = await askPersonasConversation(
+  const responses: ConversationTurn[] = await runPersonaConversation(
     personas,
-    model,
     argv.question,
+    model,
+    order,
     argv.verbose,
   );
 

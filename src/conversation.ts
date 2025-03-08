@@ -1,4 +1,7 @@
 import { askAI } from "./ai.js";
+import { log } from "./logger.js";
+import { readFileSync } from "fs";
+import * as path from "path";
 
 export interface Persona {
   name: string;
@@ -14,14 +17,22 @@ export interface ConversationTurn extends PersonaResponse {
   respondingTo?: string; // Optional since first message won't have this
 }
 
+export function loadPersonas(): Persona[] {
+  const filePath = path.join(process.cwd(), "src", "personas.json");
+  const fileContent = readFileSync(filePath, "utf-8");
+  return JSON.parse(fileContent) as Persona[];
+}
+
 export async function runPersonaConversation(
   personas: Persona[],
   question: string,
   model: any,
   order?: string[],
-): Promise<PersonaResponse[]> {
-  const responses: PersonaResponse[] = [];
+  verbose: boolean = false,
+): Promise<ConversationTurn[]> {
+  const conversation: ConversationTurn[] = [];
   const speakingOrder = order ?? personas.map((p) => p.name);
+  let previousPrompt = question;
 
   for (const personaName of speakingOrder) {
     const persona = personas.find((p) => p.name === personaName);
@@ -29,16 +40,22 @@ export async function runPersonaConversation(
       throw new Error(`Persona ${personaName} not found.`);
     }
 
-    const context = responses
+    const context = conversation
       .map((res) => `${res.speaker} said: "${res.message}"`)
       .join("\n\n");
 
     const fullPrompt = context ? `${context}\n\n${question}` : question;
 
-    const response = await askAI(fullPrompt, model, persona.prompt);
+    const response = await askAI(fullPrompt, model, persona.prompt, verbose);
 
-    responses.push({ speaker: persona.name, message: response });
+    conversation.push({
+      speaker: persona.name,
+      message: response,
+      respondingTo: previousPrompt,
+    });
+
+    previousPrompt = fullPrompt;
   }
 
-  return responses;
+  return conversation;
 }

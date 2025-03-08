@@ -1,6 +1,6 @@
 import { writeFileSync, existsSync, mkdirSync } from "fs";
 import * as path from "path";
-import { ConversationTurn } from "./ai.js";
+import { ConversationTurn } from "./conversation.js";
 
 export function generateMarkdownReport(
   question: string,

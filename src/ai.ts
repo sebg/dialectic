@@ -5,32 +5,7 @@ import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
-import { readFileSync } from "fs";
-import * as path from "path";
-import { shuffle } from "lodash-es";
 import { log } from "./logger.js";
-
-export interface Persona {
-  name: string;
-  prompt: string;
-}
-
-export interface PersonaResponse {
-  speaker: string; // previously 'name'
-  message: string; // previously 'response'
-}
-
-export interface ConversationTurn {
-  speaker: string;
-  message: string;
-  respondingTo?: string; // Optional since first message won't have this
-}
-
-export function loadPersonas(): Persona[] {
-  const filePath = path.join(process.cwd(), "src", "personas.json");
-  const fileContent = readFileSync(filePath, "utf-8");
-  return JSON.parse(fileContent) as Persona[];
-}
 
 export function getModel(modelProvider: string) {
   switch (modelProvider) {
@@ -61,35 +36,4 @@ export async function askAI(
 
   if (verbose) log("Response received.");
   return text;
-}
-
-// UPDATED FUNCTION WITH CONVERSATION LOGIC
-export async function askPersonasConversation(
-  personas: Persona[],
-  model: any,
-  question: string,
-  verbose: boolean,
-): Promise<ConversationTurn[]> {
-  const conversation: ConversationTurn[] = [];
-
-  let previousResponse = question;
-
-  for (const persona of personas) {
-    const response = await askAI(
-      previousResponse,
-      model,
-      persona.prompt,
-      verbose,
-    );
-
-    conversation.push({
-      speaker: persona.name,
-      message: response,
-      respondingTo: previousResponse,
-    });
-
-    previousResponse = `${persona.name} said: "${response}"\n\n${question}`;
-  }
-
-  return conversation;
 }

@@ -1,6 +1,6 @@
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import type { ConversationTurn } from "./ai.js";
+import type { ConversationTurn } from "./conversation.js";
 
 export async function generateSummary(
   question: string,
