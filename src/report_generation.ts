@@ -25,10 +25,7 @@ export function generateMarkdownReport(
   const fileName = `report-${timestamp}.md`;
 
   const reportDir = path.join(process.cwd(), "reports");
-
-  if (!existsSync(reportDir)) {
-    mkdirSync(reportDir, { recursive: true });
-  }
+  ensureDirectoryExists(reportDir);
 
   const reportPath = path.join(reportDir, fileName);
 
@@ -59,6 +56,11 @@ ${conversationMarkdown}
 ${summary}
 `;
 
-  writeFileSync(reportPath, content);
-  return reportPath;
+  try {
+    writeFileSync(reportPath, content);
+    return reportPath;
+  } catch (error) {
+    log(`Error writing report to ${reportPath}: ${error}`);
+    throw error;
+  }
 }
